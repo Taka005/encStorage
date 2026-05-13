@@ -4,7 +4,6 @@ import path from "path";
 import { parseArgs } from "util";
 
 const { values } = parseArgs({
-  args: process.argv,
   options: {
     password: {
       type: "string",
@@ -28,8 +27,7 @@ if (!password || !targetDir) {
 
 const passwordBuffer = Buffer.from(password);
 
-const encDir = path.join(__dirname, targetDir);
-const manifestPath = path.join(encDir, "manifest");
+const manifestPath = path.join(targetDir, "manifest");
 
 if (!fs.existsSync(manifestPath)) throw new Error("Manifest file is not found");
 
@@ -50,16 +48,20 @@ const decManifestRaw = Buffer.concat([
   manifestDecipher.final()
 ]).toString("utf-8");
 
-const manifest: Record<string, { name: string; start: number; size: number; iv: string; tag: string }[]> = JSON.parse(decManifestRaw);
+const manifest: {
+  fileName: string;
+  originalFileName: string;
+  files: { name: string; start: number; size: number; iv: string; tag: string }[]
+}[] = JSON.parse(decManifestRaw);
 
-console.log(`Manifest loaded. Processing ${Object.keys(manifest).length} files...`);
+console.log(`Manifest loaded. Processing ${manifest.length} files...`);
 
-const outputDir = path.join(__dirname, "restored");
+const outputDir = "./restored";
 
 fs.mkdirSync(outputDir,{ recursive: true });
 
-for (const [fileName, files] of Object.entries(manifest)){
-  const encFilePath = path.join(outputDir, fileName);
+manifest.forEach(({ fileName, originalFileName, files })=>{
+  const encFilePath = path.join(targetDir, fileName);
   const encBlob = fs.readFileSync(encFilePath);
 
   files.forEach((file)=>{
@@ -76,12 +78,13 @@ for (const [fileName, files] of Object.entries(manifest)){
       Filedecipher.final()
     ]);
 
-    const fileOutputPath = path.join(outputDir, file.name);
+    const fileOutputPath = path.join(outputDir, originalFileName);
 
-    fs.writeFileSync(fileOutputPath, decFileData);
-
-    console.log(`Restored: ${fileOutputPath}`);
+    fs.mkdirSync(fileOutputPath,{ recursive: true });
+    fs.writeFileSync(path.join(fileOutputPath, file.name), decFileData);
   });
-}
+
+   console.log(`Restored: ${fileName} -> ${originalFileName} (${files.length} files)`);
+});
 
 console.log("All Done!");

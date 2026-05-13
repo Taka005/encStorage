@@ -6,7 +6,6 @@ import { parseArgs } from "util";
 import { getHash } from "./utils/getHash";
 
 const { values } = parseArgs({
-  args: process.argv,
   options: {
     password: {
       type: "string",
@@ -30,7 +29,7 @@ if (!password || !targetDir) {
 
 const passwordBuffer = Buffer.from(password);
 
-const outputDir = path.join(__dirname, getHash(targetDir));
+const outputDir = getHash(targetDir);
 
 fs.mkdirSync(outputDir,{ recursive: true });
 
@@ -38,13 +37,17 @@ const salt = crypto.randomBytes(16);
 const key = crypto.pbkdf2Sync(passwordBuffer, salt, 100000, 32, "sha256");
 
 const targetFiles: string[] = fs.readdirSync(targetDir, { encoding: "utf8" })
-  .filter(file => !fs.statSync(path.join(targetDir, file)).isFile())
+  .filter(file => fs.statSync(path.join(targetDir, file)).isFile())
   .sort((a, b) => a.localeCompare(b, undefined, {
     numeric: true,
     sensitivity: "base"
   }));
 
-const manifest: Record<string, { name: string; start: number; size: number; iv: string; tag: string }[]> = {};
+const manifest: {
+  fileName: string;
+  originalFileName: string;
+  files: { name: string; start: number; size: number; iv: string; tag: string }[]
+}[] = [];
 
 console.log(`Processing ${targetFiles.length} files...`);
 
@@ -87,7 +90,11 @@ targetFiles.forEach((fileName,i)=>{
 
   fs.writeFileSync(path.join(outputDir, outputFileName), Buffer.concat(dataChunks));
 
-  manifest[outputFileName] = fileIndex;
+  manifest.push({
+    fileName: outputFileName,
+    originalFileName: fileName,
+    files: fileIndex
+  });
 
   console.log(`[${sequence}] Done: ${fileName} -> ${outputFileName}(${entries.length} files, ${offset} bytes)`);
 });
