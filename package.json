@@ -1,0 +1,16 @@
+{
+  "name": "encstorage",
+  "module": "index.ts",
+  "type": "module",
+  "private": true,
+  "devDependencies": {
+    "@types/adm-zip": "^0.5.8",
+    "@types/bun": "latest"
+  },
+  "peerDependencies": {
+    "typescript": "^5"
+  },
+  "dependencies": {
+    "adm-zip": "^0.5.17"
+  }
+}
