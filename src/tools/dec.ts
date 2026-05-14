@@ -21,7 +21,7 @@ const { values } = parseArgs({
 const { password, targetDir } = values;
 
 if (!password || !targetDir) {
-  console.error("Usage: bun run src/index.ts -p <password> -t <targetDir>");
+  console.error("Usage: bun run src/tool/dec.ts -p <password> -t <targetDir>");
   process.exit(1);
 }
 
