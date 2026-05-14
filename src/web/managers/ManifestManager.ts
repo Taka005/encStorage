@@ -1,6 +1,6 @@
 import { Manifest } from "../models/Manifest";
 
-export class ManifestManager{
+class ManifestManager{
   public manifestList: Manifest[] = [];
 
   constructor(paths: string[]) {
@@ -20,4 +20,13 @@ export class ManifestManager{
 
     return manifest.decryptManifest(password);
   }
+
+  public getManifest(index: number): Manifest {
+    const manifest = this.manifestList[index];
+    if (!manifest) throw new Error("Manifest index is out of range");
+
+    return manifest;
+  }
 }
+
+export { ManifestManager };

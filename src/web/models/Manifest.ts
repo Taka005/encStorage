@@ -1,5 +1,6 @@
 import { deriveKey } from "../utils/deriveKey";
 import { decryptBuffer } from "../utils/decryptBuffer";
+import { hexToUint8 } from "../utils/hexToUnit8";
 
 class Manifest{
   public path: string;
@@ -30,6 +31,32 @@ class Manifest{
     const manifestData: ManifestJsonType = JSON.parse(new TextDecoder().decode(decData));
 
     this.manifestData = manifestData;
+  }
+
+  public async GetContent(fileIndex: number,contentIndex: number): Promise<string> {
+    if (!this.manifestData) throw new Error("Manifest is not decrypted");
+
+    if(!this.key) throw new Error("Decryption key is not available");
+
+    const fileData = this.manifestData[fileIndex];
+    if (!fileData) throw new Error("File index is out of range");
+
+    const contentData = fileData.files[contentIndex];
+    if (!contentData) throw new Error("Content index is out of range");
+
+    const targetPath = this.path.replace("manifest", "");
+
+    const imageBuffer = await fetch(`api/download.php?path=${encodeURIComponent(targetPath + fileData.fileName)}`,{
+      headers: { "Range": `bytes=${contentData.start}-${contentData.start + contentData.size - 1}` }
+    }).then(res => res.arrayBuffer());
+
+    const iv = hexToUint8(contentData.iv);
+    const tag = hexToUint8(contentData.tag);
+
+    const decImage = await decryptBuffer(new Uint8Array(imageBuffer), this.key, iv, tag);
+    const url = URL.createObjectURL(new Blob([decImage]));
+
+    return url;
   }
 }
 
