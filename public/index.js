@@ -123,10 +123,6 @@ class CacheManager {
     const key = this.parsekey(fileIndex, contentIndex);
     this.cache.set(key, data);
   }
-  isCached(fileIndex, contentIndex) {
-    const key = this.parsekey(fileIndex, contentIndex);
-    return this.cache.has(key);
-  }
   getCache(fileIndex, contentIndex) {
     const key = this.parsekey(fileIndex, contentIndex);
     return this.cache.get(key);
@@ -140,9 +136,6 @@ class CacheManager {
 class Manager {
   ManifestManager = new ManifestManager;
   CacheManager = new CacheManager;
-  constructor() {
-    this.downLoadLink();
-  }
   async downLoadLink() {
     const manifestLinks = await fetch("api/manifest").then((res) => res.json());
     if (manifestLinks.length === 0)
@@ -156,11 +149,9 @@ class Manager {
   }
   async getContent(manifestIndex, fileIndex, contentIndex) {
     const manifest = this.getManifest(manifestIndex);
-    if (this.CacheManager.isCached(fileIndex, contentIndex)) {
-      const content = this.CacheManager.getCache(fileIndex, contentIndex);
-      if (!content)
-        throw new Error("Cached content is undefined");
-      return content;
+    const cahceContent = this.CacheManager.getCache(fileIndex, contentIndex);
+    if (cahceContent) {
+      return cahceContent;
     } else {
       const content = await manifest.getContent(fileIndex, contentIndex);
       this.CacheManager.setCache(fileIndex, contentIndex, content);
@@ -189,6 +180,9 @@ class Client {
   setPassword(password) {
     this.password = password;
     localStorage.setItem("password", password);
+  }
+  getContent() {
+    return this.manager.getContent(this.currentManifestIndex, this.currentFileIndex, 0);
   }
 }
 

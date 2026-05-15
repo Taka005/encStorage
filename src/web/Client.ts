@@ -25,6 +25,10 @@ class Client{
 
     localStorage.setItem("password", password);
   }
+
+  public getContent(): Promise<Blob> {
+    return this.manager.getContent(this.currentManifestIndex, this.currentFileIndex, 0);
+  }
 }
 
 export { Client };
