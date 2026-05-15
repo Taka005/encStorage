@@ -4,7 +4,8 @@
   "type": "module",
   "private": true,
   "scripts": {
-    "build": "bun build ./src/web/index.ts --outdir ./public --target browser --minify"
+    "build": "bun build ./src/web/index.ts --outdir ./public --target browser --minify",
+    "build:dev": "bun build ./src/web/index.ts --outdir ./public --target browser"
   },
   "devDependencies": {
     "@types/adm-zip": "^0.5.8",

@@ -13,7 +13,9 @@ class ManifestManager{
     const manifest = this.manifestList[index];
     if (!manifest) throw new Error("Manifest index is out of range");
 
-    const manifestBuffer = await fetch(`api/download.php?path=${encodeURIComponent(manifest.path)}`)
+    if (manifest.manifestData) return;
+
+    const manifestBuffer = await fetch(`api/download?path=${encodeURIComponent(manifest.path)}`)
       .then(res => res.arrayBuffer());
 
     manifest.setBuffer(new Uint8Array(manifestBuffer));

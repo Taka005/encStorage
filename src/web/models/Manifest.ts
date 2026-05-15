@@ -30,10 +30,22 @@ class Manifest{
     const decData = await decryptBuffer(this.rawData, this.key, this.iv, this.tag);
     const manifestData: ManifestJsonType = JSON.parse(new TextDecoder().decode(decData));
 
+    manifestData.sort((a, b) => a.originalFileName.localeCompare(b.originalFileName, undefined, {
+      numeric: true,
+      sensitivity: "base"
+    }));
+
+    manifestData.forEach(file => {
+      file.files.sort((a, b) => a.name.localeCompare(b.name, undefined, {
+        numeric: true,
+        sensitivity: "base"
+      }));
+    });
+
     this.manifestData = manifestData;
   }
 
-  public async GetContent(fileIndex: number,contentIndex: number): Promise<string> {
+  public async getContent(fileIndex: number,contentIndex: number): Promise<Blob> {
     if (!this.manifestData) throw new Error("Manifest is not decrypted");
 
     if(!this.key) throw new Error("Decryption key is not available");
@@ -46,7 +58,7 @@ class Manifest{
 
     const targetPath = this.path.replace("manifest", "");
 
-    const imageBuffer = await fetch(`api/download.php?path=${encodeURIComponent(targetPath + fileData.fileName)}`,{
+    const imageBuffer = await fetch(`api/download?path=${encodeURIComponent(targetPath + fileData.fileName)}`,{
       headers: { "Range": `bytes=${contentData.start}-${contentData.start + contentData.size - 1}` }
     }).then(res => res.arrayBuffer());
 
@@ -54,9 +66,8 @@ class Manifest{
     const tag = hexToUint8(contentData.tag);
 
     const decImage = await decryptBuffer(new Uint8Array(imageBuffer), this.key, iv, tag);
-    const url = URL.createObjectURL(new Blob([decImage]));
 
-    return url;
+    return new Blob([decImage]);
   }
 }
 
