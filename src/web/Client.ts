@@ -10,6 +10,10 @@ class Client{
     this.password = localStorage.getItem("password");
   }
 
+  public get isPasswordSet(): boolean {
+    return this.password !== null;
+  }
+
   public async load(): Promise<void> {
     if (!this.password) throw new Error("Password is not set");
 

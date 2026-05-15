@@ -105,6 +105,7 @@ class ManifestManager {
     if (manifest.manifestData)
       return;
     const manifestBuffer = await fetch(`api/download?path=${encodeURIComponent(manifest.path)}`).then((res) => res.arrayBuffer());
+    console.log(`Downloaded manifest from path: ${manifest.path}, size: ${manifestBuffer.byteLength} bytes`);
     manifest.setBuffer(new Uint8Array(manifestBuffer));
     return manifest.decryptManifest(password);
   }
@@ -140,15 +141,17 @@ class Manager {
     const manifestLinks = await fetch("api/manifest").then((res) => res.json());
     if (manifestLinks.length === 0)
       throw new Error("No manifest files found");
+    console.log(`Found ${manifestLinks.length} manifest files`);
     this.ManifestManager.setManifestList(manifestLinks);
   }
   getManifest(index) {
-    if (!this.ManifestManager)
+    if (this.ManifestManager.manifestCount === 0)
       throw new Error("Manifest manager is not initialized");
     return this.ManifestManager.getManifest(index);
   }
   async getContent(manifestIndex, fileIndex, contentIndex) {
     const manifest = this.getManifest(manifestIndex);
+    console.log(`Getting content for manifestIndex: ${manifestIndex}, fileIndex: ${fileIndex}, contentIndex: ${contentIndex}`);
     const cahceContent = this.CacheManager.getCache(fileIndex, contentIndex);
     if (cahceContent) {
       return cahceContent;
@@ -169,6 +172,9 @@ class Client {
   constructor() {
     this.password = localStorage.getItem("password");
   }
+  get isPasswordSet() {
+    return this.password !== null;
+  }
   async load() {
     if (!this.password)
       throw new Error("Password is not set");
@@ -187,11 +193,32 @@ class Client {
 }
 
 // src/web/index.ts
-var client = new Client;
-var passwordInput = prompt("Enter password:");
-if (passwordInput) {
-  client.setPassword(passwordInput);
-  client.load().catch((err) => {
-    alert("Error loading manifests: " + err.message);
-  });
-}
+var viewer = document.getElementById("imageViewer");
+(async () => {
+  const client = new Client;
+  if (!client.isPasswordSet) {
+    const passwordInput = prompt("Enter password:");
+    if (!passwordInput) {
+      alert("Password is required to load content");
+      return;
+    }
+    client.setPassword(passwordInput);
+  }
+  if (client.isPasswordSet) {
+    try {
+      await client.load();
+    } catch (e) {
+      alert("Failed to load content: " + e);
+      return;
+    }
+    client.currentManifestIndex = 0;
+    client.currentFileIndex = 0;
+    const content = await client.getContent();
+    const url = URL.createObjectURL(content);
+    const imgTag = document.createElement("img");
+    imgTag.src = url;
+    viewer.appendChild(imgTag);
+  } else {
+    alert("Password is required to load content");
+  }
+})();

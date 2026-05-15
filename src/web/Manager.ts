@@ -8,8 +8,10 @@ class Manager{
   public async downLoadLink(): Promise<void> {
     const manifestLinks = await fetch("api/manifest")
       .then(res => res.json());
-    
+
     if(manifestLinks.length === 0) throw new Error("No manifest files found");
+
+    console.log(`Found ${manifestLinks.length} manifest files`);
 
     this.ManifestManager.setManifestList(manifestLinks);
   }
@@ -22,6 +24,8 @@ class Manager{
 
   public async getContent(manifestIndex: number, fileIndex: number, contentIndex: number): Promise<Blob> {
     const manifest = this.getManifest(manifestIndex);
+
+    console.log(`Getting content for manifestIndex: ${manifestIndex}, fileIndex: ${fileIndex}, contentIndex: ${contentIndex}`);
 
     const cahceContent = this.CacheManager.getCache(fileIndex, contentIndex);
     if (cahceContent) {

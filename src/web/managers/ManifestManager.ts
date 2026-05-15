@@ -26,6 +26,8 @@ class ManifestManager{
     const manifestBuffer = await fetch(`api/download?path=${encodeURIComponent(manifest.path)}`)
       .then(res => res.arrayBuffer());
 
+    console.log(`Downloaded manifest from path: ${manifest.path}, size: ${manifestBuffer.byteLength} bytes`);
+
     manifest.setBuffer(new Uint8Array(manifestBuffer));
 
     return manifest.decryptManifest(password);
