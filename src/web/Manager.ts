@@ -14,8 +14,8 @@ class Manager{
     this.ManifestManager.setManifestList(manifestLinks);
   }
 
-  private getManifest(index: number) {
-    if (!this.ManifestManager) throw new Error("Manifest manager is not initialized");
+  public getManifest(index: number) {
+    if (this.ManifestManager.manifestCount === 0) throw new Error("Manifest manager is not initialized");
 
     return this.ManifestManager.getManifest(index);
   }
