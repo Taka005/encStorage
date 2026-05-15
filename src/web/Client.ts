@@ -3,8 +3,8 @@ import { Manager } from "./Manager";
 class Client{
   private manager: Manager = new Manager();
   private password: string | null = null;
-  private currentManifestIndex: number = 0;
-  private currentFileIndex: number = 0;
+  public currentManifestIndex: number = 0;
+  public currentFileIndex: number = 0;
 
   constructor() {
     this.password = localStorage.getItem("password");

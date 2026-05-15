@@ -1,14 +1,31 @@
 import { Client } from "./Client";
 
-const client = new Client();
+const viewer = document.getElementById("imageViewer") as HTMLDivElement;
 
-const passwordInput = prompt("Enter password:");
+(async() => {
+  const client = new Client();
 
-if (passwordInput) {
-  client.setPassword(passwordInput);
+  const passwordInput = prompt("Enter password:");
 
-  client.load()
-    .catch(err => {
-      alert("Error loading manifests: " + err.message);
-    });
-}
+  if (passwordInput) {
+    client.setPassword(passwordInput);
+
+    try{
+      await client.load();
+    }catch(e){
+      alert("Failed to load content: " + e);
+      return;
+    }
+    
+    client.currentManifestIndex = 0;
+    client.currentFileIndex = 0;
+
+    const content = await client.getContent();
+
+    const url = URL.createObjectURL(content);
+                
+    const imgTag = document.createElement("img");
+    imgTag.src = url;
+    viewer.appendChild(imgTag);
+  }
+})();
