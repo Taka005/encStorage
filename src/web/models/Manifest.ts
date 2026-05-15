@@ -15,6 +15,12 @@ class Manifest{
     this.path = path;
   }
 
+  public get fileCount(): number {
+    if (!this.manifestData) throw new Error("Manifest is not decrypted");
+
+    return this.manifestData.length;
+  }
+
   public setBuffer(data: Uint8Array<ArrayBuffer>) {
     this.salt = new Uint8Array(data.subarray(0, 16));
     this.iv = new Uint8Array(data.subarray(16, 28));

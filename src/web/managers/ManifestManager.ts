@@ -1,9 +1,17 @@
 import { Manifest } from "../models/Manifest";
 
 class ManifestManager{
-  public manifestList: Manifest[] = [];
+  private manifestList: Manifest[] = [];
 
-  constructor(paths: string[]) {
+  public get manifestCount(): number {
+    return this.manifestList.length;
+  }
+
+  public setManifestList(paths: string[]): void {
+    if (paths.length === 0) throw new Error("No manifest files found");
+
+    this.manifestList = [];
+
     for (const path of paths) {
       this.manifestList.push(new Manifest(path));
     }

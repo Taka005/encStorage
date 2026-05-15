@@ -33,6 +33,11 @@ class Manifest {
   constructor(path) {
     this.path = path;
   }
+  get fileCount() {
+    if (!this.manifestData)
+      throw new Error("Manifest is not decrypted");
+    return this.manifestData.length;
+  }
   setBuffer(data) {
     this.salt = new Uint8Array(data.subarray(0, 16));
     this.iv = new Uint8Array(data.subarray(16, 28));
@@ -82,7 +87,13 @@ class Manifest {
 // src/web/managers/ManifestManager.ts
 class ManifestManager {
   manifestList = [];
-  constructor(paths) {
+  get manifestCount() {
+    return this.manifestList.length;
+  }
+  setManifestList(paths) {
+    if (paths.length === 0)
+      throw new Error("No manifest files found");
+    this.manifestList = [];
     for (const path of paths) {
       this.manifestList.push(new Manifest(path));
     }
@@ -125,31 +136,18 @@ class CacheManager {
   }
 }
 
-// src/web/Client.ts
-class Client {
-  ManifestManager = null;
+// src/web/Manager.ts
+class Manager {
+  ManifestManager = new ManifestManager;
   CacheManager = new CacheManager;
-  password = null;
   constructor() {
-    this.password = localStorage.getItem("password");
     this.downLoadLink();
   }
   async downLoadLink() {
     const manifestLinks = await fetch("api/manifest").then((res) => res.json());
     if (manifestLinks.length === 0)
       throw new Error("No manifest files found");
-    this.ManifestManager = new ManifestManager(manifestLinks);
-  }
-  setPassword(password) {
-    this.password = password;
-    localStorage.setItem("password", password);
-  }
-  async loadManifest(index) {
-    if (!this.ManifestManager)
-      throw new Error("Manifest manager is not initialized");
-    if (!this.password)
-      throw new Error("Password is not set");
-    await this.ManifestManager.downloadManifest(this.password, index);
+    this.ManifestManager.setManifestList(manifestLinks);
   }
   getManifest(index) {
     if (!this.ManifestManager)
@@ -171,9 +169,35 @@ class Client {
   }
 }
 
+// src/web/Client.ts
+class Client {
+  manager = new Manager;
+  password = null;
+  currentManifestIndex = 0;
+  currentFileIndex = 0;
+  constructor() {
+    this.password = localStorage.getItem("password");
+  }
+  async load() {
+    if (!this.password)
+      throw new Error("Password is not set");
+    await this.manager.downLoadLink();
+    for (let i = 0;i < this.manager.ManifestManager.manifestCount; i++) {
+      await this.manager.ManifestManager.downloadManifest(this.password, i);
+    }
+  }
+  setPassword(password) {
+    this.password = password;
+    localStorage.setItem("password", password);
+  }
+}
+
 // src/web/index.ts
 var client = new Client;
 var passwordInput = prompt("Enter password:");
 if (passwordInput) {
   client.setPassword(passwordInput);
+  client.load().catch((err) => {
+    alert("Error loading manifests: " + err.message);
+  });
 }
