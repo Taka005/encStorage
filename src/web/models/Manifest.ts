@@ -48,6 +48,8 @@ class Manifest{
       }));
     });
 
+    console.log(`Decrypted manifest at path: ${this.path}, file count: ${manifestData.length}, total content count: ${manifestData.reduce((acc, file) => acc + file.files.length, 0)}`);
+
     this.manifestData = manifestData;
   }
 

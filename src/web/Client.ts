@@ -5,6 +5,7 @@ class Client{
   private password: string | null = null;
   public currentManifestIndex: number = 0;
   public currentFileIndex: number = 0;
+  public currentContentIndex: number = 0;
 
   constructor() {
     this.password = localStorage.getItem("password");
@@ -31,7 +32,7 @@ class Client{
   }
 
   public getContent(): Promise<Blob> {
-    return this.manager.getContent(this.currentManifestIndex, this.currentFileIndex, 0);
+    return this.manager.getContent(this.currentManifestIndex, this.currentFileIndex, this.currentContentIndex);
   }
 }
 

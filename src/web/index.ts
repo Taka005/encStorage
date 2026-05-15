@@ -26,6 +26,7 @@ const viewer = document.getElementById("imageViewer") as HTMLDivElement;
 
     client.currentManifestIndex = 0;
     client.currentFileIndex = 0;
+    client.currentContentIndex = 0;
 
     const content = await client.getContent();
 

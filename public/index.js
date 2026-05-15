@@ -60,6 +60,7 @@ class Manifest {
         sensitivity: "base"
       }));
     });
+    console.log(`Decrypted manifest at path: ${this.path}, file count: ${manifestData.length}, total content count: ${manifestData.reduce((acc, file) => acc + file.files.length, 0)}`);
     this.manifestData = manifestData;
   }
   async getContent(fileIndex, contentIndex) {
@@ -169,6 +170,7 @@ class Client {
   password = null;
   currentManifestIndex = 0;
   currentFileIndex = 0;
+  currentContentIndex = 0;
   constructor() {
     this.password = localStorage.getItem("password");
   }
@@ -188,7 +190,7 @@ class Client {
     localStorage.setItem("password", password);
   }
   getContent() {
-    return this.manager.getContent(this.currentManifestIndex, this.currentFileIndex, 0);
+    return this.manager.getContent(this.currentManifestIndex, this.currentFileIndex, this.currentContentIndex);
   }
 }
 
@@ -213,6 +215,7 @@ var viewer = document.getElementById("imageViewer");
     }
     client.currentManifestIndex = 0;
     client.currentFileIndex = 0;
+    client.currentContentIndex = 0;
     const content = await client.getContent();
     const url = URL.createObjectURL(content);
     const imgTag = document.createElement("img");
