@@ -3,12 +3,13 @@ import { Manager } from "./Manager";
 class Client{
   private manager: Manager = new Manager();
   private password: string | null = null;
-  public currentManifestIndex: number = 0;
-  public currentFileIndex: number = 0;
-  public currentContentIndex: number = 0;
 
   constructor() {
     this.password = localStorage.getItem("password");
+  }
+
+  public get manifestCount(): number {
+    return this.manager.ManifestManager.manifestCount;
   }
 
   public get isPasswordSet(): boolean {
@@ -31,8 +32,8 @@ class Client{
     localStorage.setItem("password", password);
   }
 
-  public getContent(): Promise<Blob> {
-    return this.manager.getContent(this.currentManifestIndex, this.currentFileIndex, this.currentContentIndex);
+  public getManifest(index: number) {
+    return this.manager.getManifest(index);
   }
 }
 

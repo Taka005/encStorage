@@ -24,17 +24,17 @@ const viewer = document.getElementById("imageViewer") as HTMLDivElement;
       return;
     }
 
-    client.currentManifestIndex = 0;
-    client.currentFileIndex = 0;
-    client.currentContentIndex = 0;
+    // client.currentManifestIndex = 0;
+    // client.currentFileIndex = 0;
+    // client.currentContentIndex = 0;
 
-    const content = await client.getContent();
+    // const content = await client.getContent();
 
-    const url = URL.createObjectURL(content);
+    // const url = URL.createObjectURL(content);
 
-    const imgTag = document.createElement("img");
-    imgTag.src = url;
-    viewer.appendChild(imgTag);
+    // const imgTag = document.createElement("img");
+    // imgTag.src = url;
+    // viewer.appendChild(imgTag);
   }else{
     alert("Password is required to load content");
   }
