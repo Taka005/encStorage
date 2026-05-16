@@ -197,6 +197,7 @@ class Client {
 // src/web/reader.ts
 var params = new URLSearchParams(document.location.search);
 var viewer = document.getElementById("imageViewer");
+var container = document.querySelector(".viewer-container");
 (async () => {
   const client = new Client;
   const loadedImages = new Map;
@@ -234,30 +235,56 @@ var viewer = document.getElementById("imageViewer");
     return;
   }
   let contentIndex = 0;
-  const container = document.querySelector(".viewer-container");
-  container.addEventListener("scroll", async () => {
+  let currentId = 0;
+  if (!manifest.manifestData) {
+    alert("Manifest is not decrypted");
+    window.location.href = "index.html";
+    return;
+  }
+  const fileData = manifest.manifestData[fileIndex];
+  if (!fileData) {
+    alert("File index is out of range");
+    window.location.href = `index.html?manifestIndex=${manifestIndex}`;
+    return;
+  }
+  const totalFiles = fileData.files.length;
+  const placeholders = [];
+  for (let i = 0;i < totalFiles; i++) {
+    const box = document.createElement("div");
+    box.className = "viewer-img-box";
+    viewer.appendChild(box);
+    placeholders.push(box);
+  }
+  container.addEventListener("scroll", () => {
     const scrollLeft = container.scrollLeft;
-    const width = container.clientWidth;
+    const width = placeholders[0]?.getBoundingClientRect().width || container.clientWidth;
+    if (width === 0)
+      return;
     const newIndex = Math.round(scrollLeft / width);
     if (newIndex !== contentIndex) {
       contentIndex = newIndex;
-      await updateImages(manifest, fileIndex, contentIndex);
+      updateImages(manifest, fileIndex, contentIndex);
     }
   });
   await updateImages(manifest, fileIndex, contentIndex);
-  async function updateImages(manifest2, fileIndex2, contentIndex2) {
-    for (let i = contentIndex2 - 3;i <= contentIndex2 + 3; i++) {
-      if (i >= 0 && i < manifest2.fileCount && !loadedImages.has(i)) {
+  async function updateImages(manifest2, fileIndex2, targetIndex) {
+    const myId = ++currentId;
+    const start = Math.max(0, targetIndex - 3);
+    const end = Math.min(manifest2.fileCount - 1, targetIndex + 3);
+    for (let i = start;i <= end; i++) {
+      if (!loadedImages.has(i)) {
         const content = await manifest2.getContent(fileIndex2, i);
+        if (myId !== currentId)
+          return;
         const url = URL.createObjectURL(content);
         const imgTag = document.createElement("img");
         imgTag.src = url;
-        viewer.appendChild(imgTag);
+        placeholders[i].appendChild(imgTag);
         loadedImages.set(i, imgTag);
       }
     }
     for (const [index, imgElement] of loadedImages.entries()) {
-      if (index < contentIndex2 - 3 || index > contentIndex2 + 3) {
+      if (index < targetIndex - 3 || index > targetIndex + 3) {
         URL.revokeObjectURL(imgElement.src);
         imgElement.remove();
         loadedImages.delete(index);
