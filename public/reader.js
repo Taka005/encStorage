@@ -247,9 +247,8 @@ var container = document.querySelector(".viewer-container");
     window.location.href = `index.html?manifestIndex=${manifestIndex}`;
     return;
   }
-  const totalFiles = fileData.files.length;
   const placeholders = [];
-  for (let i = 0;i < totalFiles; i++) {
+  for (let i = 0;i < fileData.files.length; i++) {
     const box = document.createElement("div");
     box.className = "viewer-img-box";
     viewer.appendChild(box);
@@ -257,20 +256,20 @@ var container = document.querySelector(".viewer-container");
   }
   container.addEventListener("scroll", () => {
     const scrollLeft = container.scrollLeft;
-    const width = placeholders[0]?.getBoundingClientRect().width || container.clientWidth;
+    const width = container.clientWidth;
     if (width === 0)
       return;
     const newIndex = Math.round(scrollLeft / width);
     if (newIndex !== contentIndex) {
       contentIndex = newIndex;
-      updateImages(manifest, fileIndex, contentIndex);
+      updateImages(manifest, fileData.files.length, fileIndex, contentIndex);
     }
   });
-  await updateImages(manifest, fileIndex, contentIndex);
-  async function updateImages(manifest2, fileIndex2, targetIndex) {
+  await updateImages(manifest, fileData.files.length, fileIndex, contentIndex);
+  async function updateImages(manifest2, contentCount, fileIndex2, targetIndex) {
     const myId = ++currentId;
     const start = Math.max(0, targetIndex - 3);
-    const end = Math.min(manifest2.fileCount - 1, targetIndex + 3);
+    const end = Math.min(contentCount - 1, targetIndex + 3);
     for (let i = start;i <= end; i++) {
       if (!loadedImages.has(i)) {
         const content = await manifest2.getContent(fileIndex2, i);
@@ -279,8 +278,12 @@ var container = document.querySelector(".viewer-container");
         const url = URL.createObjectURL(content);
         const imgTag = document.createElement("img");
         imgTag.src = url;
-        placeholders[i].appendChild(imgTag);
-        loadedImages.set(i, imgTag);
+        console.log(`Loaded content for fileIndex: ${fileIndex2}, contentIndex: ${i}, size: ${content.size} bytes`);
+        const placeholder = placeholders[i];
+        if (placeholder) {
+          placeholder.appendChild(imgTag);
+          loadedImages.set(i, imgTag);
+        }
       }
     }
     for (const [index, imgElement] of loadedImages.entries()) {

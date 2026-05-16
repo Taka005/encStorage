@@ -61,7 +61,6 @@ const container = document.querySelector(".viewer-container") as HTMLDivElement;
   let contentIndex = 0;
   let currentId = 0;
 
-
   if (!manifest.manifestData) {
     alert("Manifest is not decrypted");
 
@@ -77,10 +76,9 @@ const container = document.querySelector(".viewer-container") as HTMLDivElement;
     return;
   }
 
-  const totalFiles = fileData.files.length;
   const placeholders: HTMLDivElement[] = [];
 
-  for (let i = 0; i < totalFiles; i++) {
+  for (let i = 0; i < fileData.files.length; i++) {
     const box = document.createElement("div");
     box.className = "viewer-img-box";
     viewer.appendChild(box);
@@ -97,17 +95,17 @@ const container = document.querySelector(".viewer-container") as HTMLDivElement;
 
     if (newIndex !== contentIndex) {
       contentIndex = newIndex;
-      updateImages(manifest, fileIndex, contentIndex);
+      updateImages(manifest, fileData.files.length, fileIndex, contentIndex);
     }
   });
 
-  await updateImages(manifest, fileIndex, contentIndex);
+  await updateImages(manifest, fileData.files.length, fileIndex, contentIndex);
 
-  async function updateImages(manifest: Manifest, fileIndex: number, targetIndex: number) {
+  async function updateImages(manifest: Manifest,contentCount: number, fileIndex: number, targetIndex: number) {
     const myId = ++currentId;
 
     const start = Math.max(0, targetIndex - 3);
-    const end = Math.min(manifest.fileCount - 1, targetIndex + 3);
+    const end = Math.min(contentCount - 1, targetIndex + 3);
 
     for (let i = start; i <= end; i++) {
       if (!loadedImages.has(i)) {
@@ -119,8 +117,13 @@ const container = document.querySelector(".viewer-container") as HTMLDivElement;
         const imgTag = document.createElement("img");
         imgTag.src = url;
 
-        placeholders[i].appendChild(imgTag);
-        loadedImages.set(i, imgTag);
+        console.log(`Loaded content for fileIndex: ${fileIndex}, contentIndex: ${i}, size: ${content.size} bytes`);
+
+        const placeholder = placeholders[i];
+        if (placeholder) {
+          placeholder.appendChild(imgTag);
+          loadedImages.set(i, imgTag);
+        }
       }
     }
 
