@@ -30,10 +30,10 @@ const viewer = document.getElementById("imageGrid") as HTMLDivElement;
     return;
   }
 
-  const indexParam = params.get("index");
-  const index = indexParam ? parseInt(indexParam) : null;
+  const manifestIndexParam = params.get("manifestIndex");
+  const manifestIndex = manifestIndexParam ? parseInt(manifestIndexParam) : null;
 
-  if(index === null || index < 0 || index >= client.manifestCount){
+  if(manifestIndex === null || manifestIndex < 0 || manifestIndex >= client.manifestCount){
     for(let i = 0; i < client.manifestCount; i++){
       const manifest = client.getManifest(i);
 
@@ -44,9 +44,13 @@ const viewer = document.getElementById("imageGrid") as HTMLDivElement;
       const imgTag = document.createElement("img");
       imgTag.src = url;
       viewer.appendChild(imgTag);
+
+      imgTag.addEventListener("click", () => {
+        window.location.href = `index.html?manifestIndex=${i}`;
+      });
     }
   }else{
-    const manifest = client.getManifest(index);
+    const manifest = client.getManifest(manifestIndex);
 
     for(let i = 0; i < manifest.fileCount; i++){
       const content = await manifest.getContent(i,0);
@@ -56,6 +60,10 @@ const viewer = document.getElementById("imageGrid") as HTMLDivElement;
       const imgTag = document.createElement("img");
       imgTag.src = url;
       viewer.appendChild(imgTag);
+
+      imgTag.addEventListener("click", () => {
+        window.location.href = `reader.html?manifestIndex=${manifestIndex}&fileIndex=${i}`;
+      });
     }
   }
 })();

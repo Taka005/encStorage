@@ -217,9 +217,9 @@ var viewer = document.getElementById("imageGrid");
     alert("Failed to load content: " + e);
     return;
   }
-  const indexParam = params.get("index");
-  const index = indexParam ? parseInt(indexParam) : null;
-  if (index === null || index < 0 || index >= client.manifestCount) {
+  const manifestIndexParam = params.get("manifestIndex");
+  const manifestIndex = manifestIndexParam ? parseInt(manifestIndexParam) : null;
+  if (manifestIndex === null || manifestIndex < 0 || manifestIndex >= client.manifestCount) {
     for (let i = 0;i < client.manifestCount; i++) {
       const manifest = client.getManifest(i);
       const content = await manifest.getContent(0, 0);
@@ -227,15 +227,21 @@ var viewer = document.getElementById("imageGrid");
       const imgTag = document.createElement("img");
       imgTag.src = url;
       viewer.appendChild(imgTag);
+      imgTag.addEventListener("click", () => {
+        window.location.href = `index.html?manifestIndex=${i}`;
+      });
     }
   } else {
-    const manifest = client.getManifest(index);
+    const manifest = client.getManifest(manifestIndex);
     for (let i = 0;i < manifest.fileCount; i++) {
       const content = await manifest.getContent(i, 0);
       const url = URL.createObjectURL(content);
       const imgTag = document.createElement("img");
       imgTag.src = url;
       viewer.appendChild(imgTag);
+      imgTag.addEventListener("click", () => {
+        window.location.href = `reader.html?manifestIndex=${manifestIndex}&fileIndex=${i}`;
+      });
     }
   }
 })();
