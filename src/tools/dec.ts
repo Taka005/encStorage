@@ -70,12 +70,12 @@ manifest.forEach(({ fileName, originalFileName, files })=>{
     const iv = Buffer.from(file.iv, "hex");
     const tag = Buffer.from(file.tag, "hex");
 
-    const Filedecipher = crypto.createDecipheriv("aes-256-gcm", key, iv);
-    Filedecipher.setAuthTag(tag);
+    const fileDecipher = crypto.createDecipheriv("aes-256-gcm", key, iv);
+    fileDecipher.setAuthTag(tag);
 
     const decFileData = Buffer.concat([
-      Filedecipher.update(fileData),
-      Filedecipher.final()
+      fileDecipher.update(fileData),
+      fileDecipher.final()
     ]);
 
     const fileOutputPath = path.join(outputDir, originalFileName);
