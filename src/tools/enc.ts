@@ -60,6 +60,7 @@ targetFiles.forEach((fileName,i)=>{
   const zip = new AdminZip(filePath);
   const entries = zip.getEntries()
     .filter(entry => !entry.isDirectory)
+    .filter(entry=>entry.entryName.match(/\.(jpg|jpeg|png|gif|bmp|webp|avif|tiff|svg)$/i))
     .sort((a, b) => a.entryName.localeCompare(b.entryName, undefined,{
       numeric: true,
       sensitivity: "base"
