@@ -1,5 +1,4 @@
 # encStorage
 暗号化ストレージシステム
 
-- enc.ts でファイルを暗号化することができます
-- publicはサーバーで公開する場合に利用できます
+[Qiita](https://qiita.com/Taka00501/items/edd91378b6dfcf811414)より技術詳細を閲覧できます
