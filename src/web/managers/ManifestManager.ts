@@ -23,7 +23,7 @@ class ManifestManager{
 
     if (manifest.manifestData) return;
 
-    const manifestBuffer = await fetch(`api/download?path=${encodeURIComponent(manifest.path)}`)
+    const manifestBuffer = await fetch(`api/download?path=${encodeURIComponent(manifest.path + "/manifest")}`)
       .then(res => res.arrayBuffer());
 
     console.log(`Downloaded manifest from path: ${manifest.path}, size: ${manifestBuffer.byteLength} bytes`);

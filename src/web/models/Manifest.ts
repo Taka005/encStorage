@@ -64,9 +64,7 @@ class Manifest{
     const contentData = fileData.files[contentIndex];
     if (!contentData) throw new Error("Content index is out of range");
 
-    const targetPath = this.path.replace("manifest", "");
-
-    const imageBuffer = await fetch(`api/download?path=${encodeURIComponent(targetPath + fileData.fileName)}`,{
+    const imageBuffer = await fetch(`api/download?path=${encodeURIComponent(this.path + "/" + fileData.fileName)}`,{
       headers: { "Range": `bytes=${contentData.start}-${contentData.start + contentData.size - 1}` }
     }).then(res => res.arrayBuffer());
 

@@ -74,8 +74,7 @@ class Manifest {
     const contentData = fileData.files[contentIndex];
     if (!contentData)
       throw new Error("Content index is out of range");
-    const targetPath = this.path.replace("manifest", "");
-    const imageBuffer = await fetch(`api/download?path=${encodeURIComponent(targetPath + fileData.fileName)}`, {
+    const imageBuffer = await fetch(`api/download?path=${encodeURIComponent(this.path + "/" + fileData.fileName)}`, {
       headers: { Range: `bytes=${contentData.start}-${contentData.start + contentData.size - 1}` }
     }).then((res) => res.arrayBuffer());
     const iv = hexToUint8(contentData.iv);
@@ -105,7 +104,7 @@ class ManifestManager {
       throw new Error("Manifest index is out of range");
     if (manifest.manifestData)
       return;
-    const manifestBuffer = await fetch(`api/download?path=${encodeURIComponent(manifest.path)}`).then((res) => res.arrayBuffer());
+    const manifestBuffer = await fetch(`api/download?path=${encodeURIComponent(manifest.path + "/manifest")}`).then((res) => res.arrayBuffer());
     console.log(`Downloaded manifest from path: ${manifest.path}, size: ${manifestBuffer.byteLength} bytes`);
     manifest.setBuffer(new Uint8Array(manifestBuffer));
     return manifest.decryptManifest(password);
