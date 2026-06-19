@@ -18,7 +18,7 @@ class Manifest{
   public get fileCount(): number {
     if (!this.manifestData) throw new Error("Manifest is not decrypted");
 
-    return this.manifestData.length;
+    return this.manifestData.files.length;
   }
 
   public setBuffer(data: Uint8Array<ArrayBuffer>) {
@@ -36,19 +36,19 @@ class Manifest{
     const decData = await decryptBuffer(this.rawData, this.key, this.iv, this.tag);
     const manifestData: ManifestJsonType = JSON.parse(new TextDecoder().decode(decData));
 
-    manifestData.sort((a, b) => a.originalFileName.localeCompare(b.originalFileName, undefined, {
+    manifestData.files.sort((a, b) => a.originalFileName.localeCompare(b.originalFileName, undefined, {
       numeric: true,
       sensitivity: "base"
     }));
 
-    manifestData.forEach(file => {
+    manifestData.files.forEach(file => {
       file.files.sort((a, b) => a.name.localeCompare(b.name, undefined, {
         numeric: true,
         sensitivity: "base"
       }));
     });
 
-    console.log(`Decrypted manifest at path: ${this.path}, file count: ${manifestData.length}, total content count: ${manifestData.reduce((acc, file) => acc + file.files.length, 0)}`);
+    console.log(`Decrypted manifest at path: ${this.path}, file count: ${manifestData.files.length}, total content count: ${manifestData.files.reduce((acc, file) => acc + file.files.length, 0)}`);
 
     this.manifestData = manifestData;
   }
@@ -58,7 +58,7 @@ class Manifest{
 
     if(!this.key) throw new Error("Decryption key is not available");
 
-    const fileData = this.manifestData[fileIndex];
+    const fileData = this.manifestData.files[fileIndex];
     if (!fileData) throw new Error("File index is out of range");
 
     const contentData = fileData.files[contentIndex];
@@ -78,10 +78,13 @@ class Manifest{
 }
 
 type ManifestJsonType = {
-  fileName: string;
-  originalFileName: string;
-  files: { name: string; start: number; size: number; iv: string; tag: string }[]
-}[]
+  originalDirName: string;
+  files: {
+    fileName: string;
+    originalFileName: string;
+    files: { name: string; start: number; size: number; iv: string; tag: string }[]
+  }[]
+}
 
 export { Manifest };
 export type { ManifestJsonType };

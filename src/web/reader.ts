@@ -69,7 +69,7 @@ const container = document.querySelector(".viewer-container") as HTMLDivElement;
     return;
   }
 
-  const fileData = manifest.manifestData[fileIndex];
+  const fileData = manifest.manifestData.files[fileIndex];
   if (!fileData) {
     alert("File index is out of range");
     window.location.href = `index.html?manifestIndex=${manifestIndex}`;

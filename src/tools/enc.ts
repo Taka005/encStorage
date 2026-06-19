@@ -43,11 +43,14 @@ const targetFiles: string[] = fs.readdirSync(targetDir, { encoding: "utf8" })
     sensitivity: "base"
   }));
 
-const manifest: {
-  fileName: string;
-  originalFileName: string;
-  files: { name: string; start: number; size: number; iv: string; tag: string }[]
-}[] = [];
+const manifest = {
+  originalDirName: targetDir,
+  files: [] as {
+    fileName: string;
+    originalFileName: string;
+    files: { name: string; start: number; size: number; iv: string; tag: string }[]
+  }[]
+};
 
 console.log(`Processing ${targetFiles.length} files...`);
 
@@ -91,7 +94,7 @@ targetFiles.forEach((fileName,i)=>{
 
   fs.writeFileSync(path.join(outputDir, outputFileName), Buffer.concat(dataChunks));
 
-  manifest.push({
+  manifest.files.push({
     fileName: outputFileName,
     originalFileName: fileName,
     files: fileIndex

@@ -49,18 +49,21 @@ const decManifestRaw = Buffer.concat([
 ]).toString("utf-8");
 
 const manifest: {
-  fileName: string;
-  originalFileName: string;
-  files: { name: string; start: number; size: number; iv: string; tag: string }[]
-}[] = JSON.parse(decManifestRaw);
+  originalDirName: string;
+  files: {
+    fileName: string;
+    originalFileName: string;
+    files: { name: string; start: number; size: number; iv: string; tag: string }[]
+  }[]
+} = JSON.parse(decManifestRaw);
 
-console.log(`Manifest loaded. Processing ${manifest.length} files...`);
+console.log(`Manifest loaded. Processing ${manifest.files.length} files...`);
 
-const outputDir = "./restored";
+const outputDir = `./restored/${manifest.originalDirName}`;
 
 fs.mkdirSync(outputDir,{ recursive: true });
 
-manifest.forEach(({ fileName, originalFileName, files })=>{
+manifest.files.forEach(({ fileName, originalFileName, files })=>{
   const encFilePath = path.join(targetDir, fileName);
   const encBlob = fs.readFileSync(encFilePath);
 
