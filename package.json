@@ -9,12 +9,14 @@
   },
   "devDependencies": {
     "@types/adm-zip": "^0.5.8",
-    "@types/bun": "latest"
+    "@types/bun": "latest",
+    "@types/yauzl-promise": "^4.0.1"
   },
   "peerDependencies": {
     "typescript": "^5"
   },
   "dependencies": {
-    "adm-zip": "^0.5.17"
+    "adm-zip": "^0.5.17",
+    "yauzl-promise": "^4.0.0"
   }
 }
