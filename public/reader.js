@@ -247,7 +247,7 @@ var container = document.querySelector(".viewer-container");
     return;
   }
   const placeholders = [];
-  for (let i = 0;i < fileData.files.length; i++) {
+  for (let i = 0;i < fileData.contents.length; i++) {
     const box = document.createElement("div");
     box.className = "viewer-img-box";
     viewer.appendChild(box);
@@ -261,10 +261,10 @@ var container = document.querySelector(".viewer-container");
     const newIndex = Math.round(scrollLeft / width);
     if (newIndex !== contentIndex) {
       contentIndex = newIndex;
-      updateImages(manifest, fileData.files.length, fileIndex, contentIndex);
+      updateImages(manifest, fileData.contents.length, fileIndex, contentIndex);
     }
   });
-  await updateImages(manifest, fileData.files.length, fileIndex, contentIndex);
+  await updateImages(manifest, fileData.contents.length, fileIndex, contentIndex);
   async function updateImages(manifest2, contentCount, fileIndex2, targetIndex) {
     const myId = ++currentId;
     const start = Math.max(0, targetIndex - 3);

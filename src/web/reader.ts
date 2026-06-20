@@ -78,7 +78,7 @@ const container = document.querySelector(".viewer-container") as HTMLDivElement;
 
   const placeholders: HTMLDivElement[] = [];
 
-  for (let i = 0; i < fileData.files.length; i++) {
+  for (let i = 0; i < fileData.contents.length; i++) {
     const box = document.createElement("div");
     box.className = "viewer-img-box";
     viewer.appendChild(box);
@@ -95,11 +95,11 @@ const container = document.querySelector(".viewer-container") as HTMLDivElement;
 
     if (newIndex !== contentIndex) {
       contentIndex = newIndex;
-      updateImages(manifest, fileData.files.length, fileIndex, contentIndex);
+      updateImages(manifest, fileData.contents.length, fileIndex, contentIndex);
     }
   });
 
-  await updateImages(manifest, fileData.files.length, fileIndex, contentIndex);
+  await updateImages(manifest, fileData.contents.length, fileIndex, contentIndex);
 
   async function updateImages(manifest: Manifest,contentCount: number, fileIndex: number, targetIndex: number) {
     const myId = ++currentId;
