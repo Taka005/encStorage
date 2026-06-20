@@ -55,12 +55,12 @@ class Manifest {
       sensitivity: "base"
     }));
     manifestData.files.forEach((file) => {
-      file.files.sort((a, b) => a.name.localeCompare(b.name, undefined, {
+      file.contents.sort((a, b) => a.name.localeCompare(b.name, undefined, {
         numeric: true,
         sensitivity: "base"
       }));
     });
-    console.log(`Decrypted manifest at path: ${this.path}, file count: ${manifestData.files.length}, total content count: ${manifestData.files.reduce((acc, file) => acc + file.files.length, 0)}`);
+    console.log(`Decrypted manifest at path: ${this.path}, file count: ${manifestData.files.length}, total content count: ${manifestData.files.reduce((acc, file) => acc + file.contents.length, 0)}`);
     this.manifestData = manifestData;
   }
   async getContent(fileIndex, contentIndex) {
@@ -71,7 +71,7 @@ class Manifest {
     const fileData = this.manifestData.files[fileIndex];
     if (!fileData)
       throw new Error("File index is out of range");
-    const contentData = fileData.files[contentIndex];
+    const contentData = fileData.contents[contentIndex];
     if (!contentData)
       throw new Error("Content index is out of range");
     const imageBuffer = await fetch(`api/download?path=${encodeURIComponent(this.path + "/" + fileData.fileName)}`, {

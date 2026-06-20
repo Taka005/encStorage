@@ -48,7 +48,7 @@ const manifest = {
   files: [] as {
     fileName: string;
     originalFileName: string;
-    files: { name: string; start: number; size: number; iv: string; tag: string }[]
+    contents: { name: string; start: number; size: number; iv: string; tag: string }[]
   }[]
 };
 
@@ -97,7 +97,7 @@ targetFiles.forEach((fileName,i)=>{
   manifest.files.push({
     fileName: outputFileName,
     originalFileName: fileName,
-    files: fileIndex
+    contents: fileIndex
   });
 
   console.log(`[${sequence}] Done: ${fileName} -> ${outputFileName}(${entries.length} files, ${offset} bytes)`);

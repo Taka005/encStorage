@@ -53,7 +53,7 @@ const manifest: {
   files: {
     fileName: string;
     originalFileName: string;
-    files: { name: string; start: number; size: number; iv: string; tag: string }[]
+    contents: { name: string; start: number; size: number; iv: string; tag: string }[]
   }[]
 } = JSON.parse(decManifestRaw);
 
@@ -63,15 +63,15 @@ const outputDir = `./restored/${manifest.originalDirName}`;
 
 fs.mkdirSync(outputDir,{ recursive: true });
 
-manifest.files.forEach(({ fileName, originalFileName, files })=>{
+manifest.files.forEach(({ fileName, originalFileName, contents })=>{
   const encFilePath = path.join(targetDir, fileName);
   const encBlob = fs.readFileSync(encFilePath);
 
-  files.forEach((file)=>{
-    const fileData = encBlob.subarray(file.start, file.start + file.size);
+  contents.forEach((content)=>{
+    const fileData = encBlob.subarray(content.start, content.start + content.size);
 
-    const iv = Buffer.from(file.iv, "hex");
-    const tag = Buffer.from(file.tag, "hex");
+    const iv = Buffer.from(content.iv, "hex");
+    const tag = Buffer.from(content.tag, "hex");
 
     const fileDecipher = crypto.createDecipheriv("aes-256-gcm", key, iv);
     fileDecipher.setAuthTag(tag);
@@ -84,10 +84,10 @@ manifest.files.forEach(({ fileName, originalFileName, files })=>{
     const fileOutputPath = path.join(outputDir, originalFileName);
 
     fs.mkdirSync(fileOutputPath,{ recursive: true });
-    fs.writeFileSync(path.join(fileOutputPath, file.name), decFileData);
+    fs.writeFileSync(path.join(fileOutputPath, content.name), decFileData);
   });
 
-   console.log(`Restored: ${fileName} -> ${originalFileName} (${files.length} files)`);
+   console.log(`Restored: ${fileName} -> ${originalFileName} (${contents.length} files)`);
 });
 
 console.log("All Done!");
