@@ -46,8 +46,7 @@ async function processFiles(targetDir: string) {
 
   for (const [i, fileName] of targetFiles.entries()) {
     const filePath = path.join(targetDir, fileName);
-    const sequence = String(i).padStart(3, "0");
-    const outputFileName = `${getHash(fileName)}_${sequence}`;
+    const outputFileName = `${getHash(fileName)}`;
 
     const zip = await open(filePath);
     const fileIndex: { name: string; start: number; size: number; iv: string; tag: string }[] = [];
@@ -88,7 +87,7 @@ async function processFiles(targetDir: string) {
         contents: fileIndex
       });
 
-      console.log(`[${sequence}] Done: ${fileName} -> ${outputFileName} (${fileIndex.length} files, ${offset} bytes)`);
+      console.log(`Done: ${fileName} -> ${outputFileName} (${fileIndex.length} files, ${offset} bytes)`);
     } finally {
       await zip.close();
     }

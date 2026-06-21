@@ -58,7 +58,7 @@ targetFiles.forEach((fileName,i)=>{
   const filePath = path.join(targetDir, fileName);
 
   const sequence = String(i).padStart(3, "0");
-  const outputFileName = `${getHash(fileName)}_${sequence}`;
+  const outputFileName = `${getHash(fileName)}`;
 
   const zip = new AdminZip(filePath);
   const entries = zip.getEntries()
@@ -100,7 +100,7 @@ targetFiles.forEach((fileName,i)=>{
     contents: fileIndex
   });
 
-  console.log(`[${sequence}] Done: ${fileName} -> ${outputFileName}(${entries.length} files, ${offset} bytes)`);
+  console.log(`Done: ${fileName} -> ${outputFileName}(${entries.length} files, ${offset} bytes)`);
 });
 
 const manifestIv = crypto.randomBytes(12);
